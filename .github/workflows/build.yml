@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [main, alpha, beta]
+    branches: [main]
   release:
     types: [created]
 
@@ -29,8 +29,7 @@ jobs:
         CLEAN: true
         BRANCH: gh-pages
         FOLDER: builds/web
-        TARGET_FOLDER: ${{ env.GITHUB_REF_SLUG }}
-        COMMIT_MESSAGE: Deploying ${{ github.sha }} to ${{ env.GITHUB_REF_SLUG }}
+        COMMIT_MESSAGE: Deploying ${{ github.sha }}
         ACCESS_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
   test:
     name: Test:Function

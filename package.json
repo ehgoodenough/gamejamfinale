@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "codeglue --stage=NONE",
-    "start": "codeglue --stage=NONE --mode=SERVER --port=8080"
+    "start": "codeglue --stage=NONE --mode=SERVER --port=8080",
+    "test": "echo uh looks good to me"
   },
   "dependencies": {
     "frem": "^1.0.0",
