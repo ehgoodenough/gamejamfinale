@@ -1,0 +1,27 @@
+{
+  "name": "gamejamfinale",
+  "version": "1.0.0",
+  "description": "A dynamically generated slide deck for game jam finales.",
+  "private": true,
+  "contributors": [
+    "Andrew McPherson <@ehgoodenough>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ehgoodenough/gamejamfinale"
+  },
+  "scripts": {
+    "build": "codeglue --stage=NONE",
+    "start": "codeglue --stage=NONE --mode=SERVER --port=8080"
+  },
+  "dependencies": {
+    "frem": "^1.0.0",
+    "preact": "^10.5.12",
+    "yaafloop": "^1.2.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.12.12",
+    "@babel/preset-env": "^7.12.11",
+    "codeglue": "^1.9.4"
+  }
+}
