@@ -2,6 +2,7 @@
   "name": "gamejamfinale",
   "version": "1.0.0",
   "description": "A dynamically generated slide deck for game jam finales.",
+  "type": "module",
   "private": true,
   "contributors": [
     "Andrew McPherson <@ehgoodenough>"
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.12.12",
     "@babel/preset-env": "^7.12.11",
+    "chai": "^4.2.0",
     "codeglue": "^1.9.4"
   }
 }
