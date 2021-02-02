@@ -348,6 +348,7 @@ var Youtube = /*#__PURE__*/function () {
   _createClass(Youtube, [{
     key: "render",
     value: function render() {
+      if (this.props.youtube == undefined) return;
       return preact__WEBPACK_IMPORTED_MODULE_0__["h"]("iframe", {
         width: "560",
         height: "315",
