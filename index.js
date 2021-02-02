@@ -208,7 +208,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Mount; });
 /* harmony import */ var preact__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
 /* harmony import */ var data_entries_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
-/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
+/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
 /* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(views_Mount_view_less__WEBPACK_IMPORTED_MODULE_2__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -368,13 +368,16 @@ var Youtube = /*#__PURE__*/function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var library_parse_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
 // Exports an array of json objects, each representing a game jam entry:
 // {
 //     "title": "Swordshard",
 //     "emoji": "🗡️",
 //     "youtube": "TGlgNDDWzgw", // the video id of a youtube video
 // }
-var entries = __webpack_require__(7);
+
+
+var entries = __webpack_require__(8);
 
 var headers = entries.shift();
 entries = entries.map(function (entry) {
@@ -388,29 +391,37 @@ entries = entries.map(function (entry) {
 entries.forEach(function (entry) {
   entry.title = entry["Game Name"];
   entry.emoji = entry["Emoji"];
-  entry.youtube = parseYoutube(entry["Youtube Link"]);
-}); // https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url
-
-function parseYoutube(url) {
-  if (url == undefined) return undefined;
-  var match = url.match(/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/);
-  return match && match[7].length == 11 ? match[7] : undefined;
-}
-
+  entry.youtube = Object(library_parse_js__WEBPACK_IMPORTED_MODULE_0__["parseYoutube"])(entry["Youtube Link"]);
+});
 /* harmony default export */ __webpack_exports__["default"] = (entries);
 
 /***/ }),
 /* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseYoutube", function() { return parseYoutube; });
+function parseYoutube(string) {
+  if (string == undefined) return undefined;
+  var url = string.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)[0];
+  if (url == undefined) return;
+  var match = url.match(/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/);
+  return match && match[7].length == 11 ? match[7] : undefined;
+}
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports) {
 
 module.exports = [["Number","Estimated Time","Emoji","Game Name","Youtube Link","Global Game Jam Link","","Favorite Ice Cream","Favorite Color","Quest","","","Team"],["0","6:10 PM","🗡️","Swordshard","https://youtu.be/TGlgNDDWzgw","https://globalgamejam.org/2021/games/swordshard-1","","Mint Chocolate Chip","","","","",""],["1","6:13 PM","🔫","Lost my gun, but I found yours","https://youtu.be/IfuvAdkfktw","https://globalgamejam.org/node/80976","","Cookie Dough","","Reconnect The Port","","",""],["2","6:16 PM","🐦","Lost Bird","https://www.youtube.com/watch?v=ObwQpmF_F9Y&ab_channel=Camzoin","https://globalgamejam.org/2021/games/lost-bird-6","","Matcha ","","Be with the bois again!","","",""],["3","6:19 PM","🛹","Rolling On","https://www.youtube.com/watch?v=7oH1n3gsGlk","https://globalgamejam.org/2021/games/skate-or-cry-5","","Vanilla / Mint Choc Chip","","To find more memory because we ran out on Gameboy :(","","","GameBoyz"],["4","6:22 PM","","","","","","Spookies and Cream","","Kill all weebs","","",""],["5","6:25 PM","🤖","Ritsu & Mochi","https://youtu.be/4TgkPzFReYw","https://globalgamejam.org/2021/games/ritsu-mochi-9","","Classic Vanilla","","Finding schematics","","",""],["6","6:28 PM","🔥","The Fire Fiddler","https://youtu.be/i9SzhkeipKw","https://globalgamejam.org/2021/games/fire-fiddler-1","","Cookies and Cream","","Get back to playing Hollow Knight ","","",""],["7","6:31 PM","😻","Catnip Fever","https://www.youtube.com/watch?v=OFr8byHN-1w","https://globalgamejam.org/2021/games/catnip-fever-7","","any ben n jerry's","","","","",""],["8","6:34 PM","🍎","Found a Friend","https://www.youtube.com/watch?v=i4AgDL49i3Y","https://globalgamejam.org/2021/games/found-friend-0","","Cherry garcia?","","","","",""],["9","6:37 PM","🐟","Lost and Fishing","https://youtu.be/2eprtj_NYa4","https://globalgamejam.org/2021/games/lost-and-fishing-4","","🐟","🐟","🐟","","",""],["10","6:40 PM","🧟🏻‍♂️","Zombie Key","https://youtu.be/t0f1K7bXnko (includes narration; recommend 720p+ or will be too blurry to see characters)","https://globalgamejam.org/2021/games/zombie-key-7","","dairy free lol","","To seek the holy grail","","",""],["11","6:43 PM","🔑🔑","WHERE'S MY KEYS?!?!","https://youtu.be/pfZAmkshOXo","https://globalgamejam.org/2021/games/wheres-my-keys-2","","Sea Salt","","Find the keys, at all costs!","","","Team Bouldy"],["12","6:46 PM","🐕","GOLD RETRIEVER","https://www.youtube.com/watch?v=QbUtKPWhsYw","https://globalgamejam.org/2021/games/gold-retriever-6","","RockyRoad","","EAT 15 Green Slimes","","",""],["13","6:49 PM","⚔️","Weapon of Choice ","https://www.youtube.com/watch?v=6pynWX8fPZs","https://globalgamejam.org/2021/games/weapon-choice-5","","wasuuuuuuup?","","So far this is no choice -- but we have LAVA","","",""],["14","6:52 PM","🌼","Lost Flowers","https://youtu.be/8f3VIKEf6-0","https://globalgamejam.org/2021/games/blastin-7","","Mint Moose Tracks","","Collect the plants!","","",""],["15","6:55 PM","💦","Where's the drip?","https://www.youtube.com/watch?v=WqZY2hrHF1w&feature=youtu.be","https://globalgamejam.org/2021/games/wheres-drip-0","","🍦","","To find the drip 💦","","",""],["16","6:58 PM","🐰","Bunny Boomers","(75) Bunny Boomers (Gameplay Footage) - YouTube","Bunny Boomers | Global Game Jam Online","","Chocolate","","To seek the Holy Grail!","","",""],["17","7:01 PM","🐔","Farm Alarm!","https://youtu.be/YaiTHEp_jNA","https://globalgamejam.org/2021/games/farm-alarm-4","","Americone Dream","","Find all the animals that are lost!","","",""],["18","7:04 PM","✈️","Operation Tomagatchi","https://www.youtube.com/watch?v=6w0-qVjd9BA&feature=youtu.be","https://globalgamejam.org/2021/games/operation-tamagotchi-8","","","","Survive day 2!","","",""],["19","7:07","👥","Peer to Peer","https://youtu.be/CiCv7howUZc ","https://globalgamejam.org/2021/games/peer-peer-5","","Moose Tracks","","Find your friend and escape!","","",""],["20","710","📞","First Unheard Message","https://www.youtube.com/watch?v=1M9aqjvtX34","https://globalgamejam.org/2021/games/first-unheard-message-2","","Mango","","😩","","",""],["21","713","⁉️","Was it worth it?","https://youtu.be/IjpRRXrmczM","https://globalgamejam.org/2021/games/was-it-even-worth-it-3","","Ice Cream","","Anxiety","","",""],["22","716","🐉","Surfing Dino","","https://globalgamejam.org/2021/games/dino-plunder-lost-and-found-treasure-2","","","","Make more zergs","","","jacob?"],["23","719","🌛","Eternal Equinox","https://youtu.be/wl-8KMCUnts","https://globalgamejam.org/2021/games/eternal-equinox-5","","","","Restore Balance To The Cosmos!","","",""],["24","7:21 PM","🚀","Dark Space","https://youtu.be/Ai1kVO57ne0","https://globalgamejam.org/2021/games/dark-space-1","","Astronaut","","To figure out what's happening on this ship...","","",""],["25","724","📆","Lost Tomorrow","https://youtu.be/RW1OTtklcuo","https://globalgamejam.org/2021/games/lost-tomorrow-9","","Rocky Road","","To seek the Holy Grail","","",""],["26","727","👸","sword of life","https://youtu.be/dNsKIPjMjhI","https://globalgamejam.org/2021/games/sword-life-2","","Cookies and Cream","","Come out with pride","","",""],["27","730","🚀💾","Star Rescue","https://www.youtube.com/watch?v=PhTaS2q-hfo","https://globalgamejam.org/2021/games/star-rescue-3","","Vanilla","","","","",""],["28","733","🔭","Tale Of Two Portals","https://www.youtube.com/watch?v=xwM7fpL89es","https://globalgamejam.org/2021/games/tale-two-portals-6","","","","Oculus","","",""],["29","736","🌈","Totally Gay Awesome Rescue Game","e","https://globalgamejam.org/2021/games/totally-gay-awesome-rescue-game-0","G","Chocolate Chip","","Happiness and warmth~","","","Girl Power"],["30","739","👻","The In-Between","https://youtu.be/G1zkjC4tAXg","https://globalgamejam.org/2021/games/between-1","","Double Chocolate Fudge Brownie","","To find the pieces that make you who you are.","","","OddBoss"],["31","742","👾","OoboloO","https://www.youtube.com/watch?v=qNUtp4FSwaY&ab_channel=LeviLindsey","https://globalgamejam.org/2021/games/ooboloo-2","","","","","","",""],["32","745","🐳","The Whale's Song","https://youtu.be/zsI2mAtTQck","https://globalgamejam.org/2021/games/whales-song-2","","","","","","",""],["33","748","👁️","Clairvoyance","https://youtu.be/M7l50FHmwDw","https://globalgamejam.org/2021/games/clairvoyance-8","","Chocolate chip cookie dough","","I seek the holy grail","","",""],["34","752","📿","The Lost Necklace","https://youtu.be/pRgOnCsv5E4","https://globalgamejam.org/2021/games/thelostnecklace-9","","Vanilla","","Get to level 30 in PixArk","","",""],["35","755","💤","Somnolence","https://youtu.be/aSpLzS34Pa4","https://globalgamejam.org/2021/games/somnolence-6","","Cookie Dough","","Just tryin to get a little more sleep","","",""],["36","758","🤖","L&F Droid","https://www.youtube.com/watch?v=9zveTiLE8nY","https://globalgamejam.org/2021/games/lf-droid-0","","","","Get some sleep after all of this","","",""],["37","801","🤖😼","Xip and Xander","https://www.youtube.com/watch?v=U2OWgsFXD8E&feature=youtu.be&ab_channel=CaitlinBurt","https://globalgamejam.org/2021/games/xip-and-xander-5","","","","","","",""],["39","8:07 PM","🌊","Treacherous Waters","https://youtu.be/d9QHs2Tb6d8","https://globalgamejam.org/2021/games/treacherous-waters-6","","Mint Chocolate Ship","","Grow your ship, find other players, bully them ","","",""],["40","810","🏰","TwitchTD","https://www.youtube.com/watch?v=6hGmx-NJON8","https://globalgamejam.org/2021/games/twitchtd-4","","Spookies and Cream","","Kill all weebs","","",""],["41","813","🩳","Gym Shorts Grave Robber","https://youtu.be/UoFHV-E-Cic","https://globalgamejam.org/2021/games/gym-shorts-grave-robber-3","","Moosetracks","","Play as a Grave Robber who is on the Hunt for Gym Shorts that give Magical Bonus and also the coins in the graves. Watch out for the Ghosts as you disturb Graves. Leave the graveyard alive to claim your loot or perish.","","",""],["42","816","🦉🦉🦉","Lost Puppy Wanted","https://youtu.be/OWeO8AjxDj4","https://globalgamejam.org/2021/games/lost-puppy-wanted-9","","Cookies n Cream","","Find a lost puppy, make a granny happy today","","",""],["43","819","🏝️","Message in a Bottle","https://www.youtube.com/watch?v=lGIZWDnu4F8&feature=youtu.be","https://globalgamejam.org/2021/games/message-bottle-5","","Vanilla","","figuring it out as i go along","","","Jose"],["44","821","🍆","Lust and Found","https://www.youtube.com/watch?v=zUFpaCS_eLg","https://globalgamejam.org/2021/games/lust-and-found-7","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","Defeat 5 Green Slimes","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],[""]]
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var api = __webpack_require__(9);
-            var content = __webpack_require__(10);
+var api = __webpack_require__(10);
+            var content = __webpack_require__(11);
 
             content = content.__esModule ? content.default : content;
 
@@ -430,7 +441,7 @@ var update = api(content, options);
 module.exports = content.locals || {};
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -705,11 +716,11 @@ module.exports = function (list, options) {
 };
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(11);
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(12);
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
 exports.push([module.i, "* {\n  margin: 0px;\n  padding: 0px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n}\n.Mount {\n  top: 0em;\n  left: 0em;\n  right: 0em;\n  bottom: 0em;\n  position: absolute;\n  background-color: #111;\n}\n.Frame {\n  top: 0em;\n  left: 0em;\n  right: 0em;\n  bottom: 0em;\n  margin: auto;\n  position: fixed;\n  overflow: hidden;\n  color: #F4F8F0;\n  width: 16em;\n  height: 9em;\n  background-image: linear-gradient(135deg, #2F243A, #444054);\n}\n.TitleScreen {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n}\n.VideoScreen {\n  width: 100%;\n  height: 100%;\n  background-color: #000;\n}\n.VideoScreen iframe {\n  width: 16em;\n  height: 9em;\n}\n.EndScreen {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n  padding: 0.5em;\n}\n", ""]);
@@ -718,7 +729,7 @@ module.exports = exports;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
