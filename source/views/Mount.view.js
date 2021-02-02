@@ -76,6 +76,7 @@ export default class Mount extends Preact.Component {
 
 class Youtube {
     render() {
+        if(this.props.youtube == undefined) return
         return (
             <iframe width="560" height="315" src={"https://www.youtube.com/embed/" + this.props.youtube + "?autoplay=1&rel=0"} frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         )
