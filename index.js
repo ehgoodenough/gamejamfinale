@@ -207,9 +207,10 @@ var n,l,u,i,t,r,o={},f=[],e=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|z
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Mount; });
 /* harmony import */ var preact__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var data_entries_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
-/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
-/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(views_Mount_view_less__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var library_entries_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var library_parse_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(7);
+/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
+/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(views_Mount_view_less__WEBPACK_IMPORTED_MODULE_3__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -236,14 +237,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 
 
-function getRoute() {
-  var hash = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.location.hash;
-  var hashes = hash.split("/");
-  return {
-    "index": parseInt(hashes[1]) || 0,
-    "screen": hashes[2] || "title"
-  };
-}
+var EXAMPLE_GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1s0Uu0F25bJKfvDyh175VsRdVZ9csWJDlBvCExxMBC-w/edit#gid=0";
 
 var Mount = /*#__PURE__*/function (_Preact$Component) {
   _inherits(Mount, _Preact$Component);
@@ -261,14 +255,57 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
     value: function componentDidMount() {
       var _this = this;
 
-      this.setState({
-        "route": getRoute(window.location.hash)
+      this.retrieveState({
+        "hash": window.location.hash,
+        "previousState": this.state
+      }).then(function (nextState) {
+        _this.setState(nextState);
+
+        console.log(nextState);
       });
       window.addEventListener("hashchange", function (event) {
-        _this.setState({
-          "route": getRoute(window.location.hash)
+        _this.retrieveState({
+          "hash": window.location.hash,
+          "previousState": _this.state
+        }).then(function (nextState) {
+          _this.setState(nextState);
+
+          console.log(nextState);
         });
       }, false);
+    }
+  }, {
+    key: "retrieveState",
+    value: function retrieveState() {
+      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          hash = _ref.hash,
+          previousState = _ref.previousState;
+
+      var nextState = {};
+      var hashes = hash.split("/");
+      nextState.route = {
+        "googlesheetId": hashes[1] || undefined,
+        "entryIndex": parseInt(hashes[2]) || 0,
+        "entrySlide": hashes[3] || "title"
+      };
+
+      if (previousState == undefined) {
+        return Promise.resolve(nextState);
+      }
+
+      if (nextState.route.googlesheetId == undefined) {
+        return Promise.resolve(nextState);
+      }
+
+      if (previousState.route != undefined && previousState.route.googlesheetId != undefined && previousState.route.googlesheetId == nextState.route.googlesheetId) {
+        nextState.entries = previousState.entries;
+        return Promise.resolve(nextState);
+      }
+
+      return Object(library_entries_js__WEBPACK_IMPORTED_MODULE_1__["retrieveEntries"])(nextState.route.googlesheetId).then(function (entries) {
+        nextState.entries = entries;
+        return nextState;
+      });
     }
   }, {
     key: "render",
@@ -281,26 +318,16 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
       }, this.screen));
     }
   }, {
-    key: "onClick",
-    get: function get() {
-      var _this2 = this;
-
-      return function (event) {
-        if (_this2.state == undefined || _this2.state.route == undefined) {
-          return undefined;
-        }
-
-        var route = _this2.state.route;
-
-        if (route.screen != "video") {
-          route.screen = "video";
-        } else {
-          route.index += 1;
-          route.screen = "title";
-        }
-
-        window.location.hash = "#/" + route.index + "/" + route.screen;
-      };
+    key: "generateRouteHash",
+    value: function generateRouteHash(route) {
+      var hash = "#";
+      if (route.googlesheetId == undefined) return hash;
+      hash += "/" + route.googlesheetId;
+      if (route.entryIndex == undefined) return hash;
+      hash += "/" + route.entryIndex;
+      if (route.entrySlide == undefined) return hash;
+      hash += "/" + route.entrySlide;
+      return hash;
     }
   }, {
     key: "screen",
@@ -309,29 +336,109 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
         return undefined;
       }
 
-      if (data_entries_js__WEBPACK_IMPORTED_MODULE_1__["default"][this.state.route.index] == undefined) {
+      if (this.state.route.googlesheetId == undefined) {
+        return preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
+          "class": "WelcomeScreen"
+        }, preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
+          "class": "Blurb"
+        }, "Let's generate a set of slides for your game jam finale. All we need is a public ", preact__WEBPACK_IMPORTED_MODULE_0__["h"]("a", {
+          href: "http://sheets.google.com/",
+          target: "_blank"
+        }, "Google Sheet"), " with the ", preact__WEBPACK_IMPORTED_MODULE_0__["h"]("span", {
+          "class": "Code"
+        }, "Game Name"), " and ", preact__WEBPACK_IMPORTED_MODULE_0__["h"]("span", {
+          "class": "Code"
+        }, "Youtube Link"), ". ", preact__WEBPACK_IMPORTED_MODULE_0__["h"]("a", {
+          href: "https://github.com/ehgoodenough/gamejamfinale/wiki/How-to-Use",
+          target: "_blank"
+        }, "Read the step-by-step instructions here!")), preact__WEBPACK_IMPORTED_MODULE_0__["h"]("form", {
+          onSubmit: this.onSubmit
+        }, preact__WEBPACK_IMPORTED_MODULE_0__["h"]("label", {
+          "for": "input"
+        }, "Google Sheets URL or ID"), preact__WEBPACK_IMPORTED_MODULE_0__["h"]("input", {
+          id: "input",
+          type: "text",
+          placeholder: EXAMPLE_GOOGLE_SHEET_URL
+        })));
+      }
+
+      if (this.state.entries == undefined) {
+        return undefined;
+      }
+
+      if (this.state.entries[this.state.route.entryIndex] == undefined) {
         return preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
           "class": "EndScreen"
         }, "Thanks for jamming!!");
       }
 
-      if (this.state.route.screen == "title") {
+      if (this.state.route.entrySlide == "title") {
         return preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
           "class": "TitleScreen"
         }, preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
           "class": "Emoji"
-        }, data_entries_js__WEBPACK_IMPORTED_MODULE_1__["default"][this.state.route.index].emoji || "😃"), preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
+        }, this.state.entries[this.state.route.entryIndex].emoji || "😃"), preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
           "class": "Title"
-        }, data_entries_js__WEBPACK_IMPORTED_MODULE_1__["default"][this.state.route.index].title));
+        }, this.state.entries[this.state.route.entryIndex].title));
       }
 
-      if (this.state.route.screen == "video") {
+      if (this.state.route.entrySlide == "video") {
         return preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
           "class": "VideoScreen"
         }, preact__WEBPACK_IMPORTED_MODULE_0__["h"](Youtube, {
-          youtube: data_entries_js__WEBPACK_IMPORTED_MODULE_1__["default"][this.state.route.index].youtube
+          youtubeId: this.state.entries[this.state.route.entryIndex].youtubeId
         }));
       }
+    }
+  }, {
+    key: "onClick",
+    get: function get() {
+      var _this2 = this;
+
+      return function (event) {
+        if (_this2.state == undefined || _this2.state.route == undefined || _this2.state.route.googlesheetId == undefined) {
+          return undefined;
+        }
+
+        if (_this2.state.route.entrySlide != "video") {
+          window.location.hash = _this2.generateRouteHash({
+            "googlesheetId": _this2.state.route.googlesheetId,
+            "entryIndex": _this2.state.route.entryIndex,
+            "entrySlide": "video"
+          });
+        } else {
+          window.location.hash = _this2.generateRouteHash({
+            "googlesheetId": _this2.state.route.googlesheetId,
+            "entryIndex": _this2.state.route.entryIndex + 1,
+            "entrySlide": "title"
+          });
+        }
+      };
+    }
+  }, {
+    key: "onSubmit",
+    get: function get() {
+      var _this3 = this;
+
+      return function (event) {
+        event.preventDefault();
+        var googlesheetUrl = event.target[0].value || EXAMPLE_GOOGLE_SHEET_URL;
+        var googlesheetId = Object(library_parse_js__WEBPACK_IMPORTED_MODULE_2__["parseGoogleSheetsId"])(googlesheetUrl);
+
+        if (googlesheetId == undefined) {
+          // event.target[0].value = ""
+          event.target[0].style.animationName = "";
+          window.setTimeout(function () {
+            event.target[0].style.animationName = "bad";
+            event.target[0].style.animationDuration = "1s";
+          });
+          return;
+        }
+
+        window.location.hash = _this3.generateRouteHash({
+          "googlesheetId": googlesheetId
+        });
+      };
     }
   }]);
 
@@ -348,11 +455,11 @@ var Youtube = /*#__PURE__*/function () {
   _createClass(Youtube, [{
     key: "render",
     value: function render() {
-      if (this.props.youtube == undefined) return;
+      if (this.props.youtubeId == undefined) return;
       return preact__WEBPACK_IMPORTED_MODULE_0__["h"]("iframe", {
         width: "560",
         height: "315",
-        src: "https://www.youtube.com/embed/" + this.props.youtube + "?autoplay=1&rel=0",
+        src: "https://www.youtube.com/embed/" + this.props.youtubeId + "?autoplay=1&rel=0",
         frameborder: "0",
         allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
         allowfullscreen: true
@@ -369,32 +476,38 @@ var Youtube = /*#__PURE__*/function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatEntries", function() { return formatEntries; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "retrieveEntries", function() { return retrieveEntries; });
 /* harmony import */ var library_parse_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
-// Exports an array of json objects, each representing a game jam entry:
+/* harmony import */ var library_fetch_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+
+ // Intakes an array of arrays parsed from a csv. The first row is the header.
+// Returns an array of json objects, each representing a game jam entry:
 // {
 //     "title": "Swordshard",
 //     "emoji": "🗡️",
 //     "youtube": "TGlgNDDWzgw", // the video id of a youtube video
 // }
 
-
-var entries = __webpack_require__(8);
-
-var headers = entries.shift();
-entries = entries.map(function (entry) {
-  var entry2 = {};
-  headers.forEach(function (header, index) {
-    if (header == "") return;
-    entry2[header] = entry[index];
+function formatEntries(entries) {
+  entries.forEach(function (entry) {
+    Object.keys(entry).forEach(function (key) {
+      var newkey = key.toLowerCase().replace(/\s+/g, "");
+      entry[newkey] = entry[key];
+    });
   });
-  return entry2;
-});
-entries.forEach(function (entry) {
-  entry.title = entry["Game Name"];
-  entry.emoji = entry["Emoji"];
-  entry.youtube = Object(library_parse_js__WEBPACK_IMPORTED_MODULE_0__["parseYoutube"])(entry["Youtube Link"]);
-});
-/* harmony default export */ __webpack_exports__["default"] = (entries);
+  entries.forEach(function (entry) {
+    entry.title = entry["gamename"];
+    entry.emoji = entry["emoji"];
+    entry.youtubeId = Object(library_parse_js__WEBPACK_IMPORTED_MODULE_0__["parseYoutubeId"])(entry["youtubelink"]);
+  });
+  return entries;
+}
+function retrieveEntries(googlesheetId) {
+  return Object(library_fetch_js__WEBPACK_IMPORTED_MODULE_1__["fetchGoogleSheet"])(googlesheetId).then(function (entries) {
+    return formatEntries(entries);
+  });
+}
 
 /***/ }),
 /* 7 */
@@ -402,27 +515,672 @@ entries.forEach(function (entry) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseYoutube", function() { return parseYoutube; });
-function parseYoutube(string) {
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseYoutubeId", function() { return parseYoutubeId; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseGoogleSheetsId", function() { return parseGoogleSheetsId; });
+function parseYoutubeId(string) {
   if (string == undefined) return undefined;
-  var url = string.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)[0];
+  if (string == "") return undefined;
+  var matches = string.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
+  if (matches == undefined) return;
+  var url = matches[0];
   if (url == undefined) return;
   var match = url.match(/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/);
-  return match && match[7].length == 11 ? match[7] : undefined;
+  var id = match && match[7].length == 11 ? match[7] : undefined;
+  return id;
+}
+function parseGoogleSheetsId(string) {
+  if (string == undefined) return undefined;
+  if (string == "") return undefined;
+  var matches = string.match(/\/([\w-_]{15,})\/(.*?gid=(\d+))?/);
+  if (matches == undefined) return;
+  var id = matches[1];
+  return id;
 }
 
 /***/ }),
 /* 8 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = [["Number","Estimated Time","Emoji","Game Name","Youtube Link","Global Game Jam Link","","Favorite Ice Cream","Favorite Color","Quest","","","Team"],["0","6:10 PM","🗡️","Swordshard","https://youtu.be/TGlgNDDWzgw","https://globalgamejam.org/2021/games/swordshard-1","","Mint Chocolate Chip","","","","",""],["1","6:13 PM","🔫","Lost my gun, but I found yours","https://youtu.be/IfuvAdkfktw","https://globalgamejam.org/node/80976","","Cookie Dough","","Reconnect The Port","","",""],["2","6:16 PM","🐦","Lost Bird","https://www.youtube.com/watch?v=ObwQpmF_F9Y&ab_channel=Camzoin","https://globalgamejam.org/2021/games/lost-bird-6","","Matcha ","","Be with the bois again!","","",""],["3","6:19 PM","🛹","Rolling On","https://www.youtube.com/watch?v=7oH1n3gsGlk","https://globalgamejam.org/2021/games/skate-or-cry-5","","Vanilla / Mint Choc Chip","","To find more memory because we ran out on Gameboy :(","","","GameBoyz"],["4","6:22 PM","","","","","","Spookies and Cream","","Kill all weebs","","",""],["5","6:25 PM","🤖","Ritsu & Mochi","https://youtu.be/4TgkPzFReYw","https://globalgamejam.org/2021/games/ritsu-mochi-9","","Classic Vanilla","","Finding schematics","","",""],["6","6:28 PM","🔥","The Fire Fiddler","https://youtu.be/i9SzhkeipKw","https://globalgamejam.org/2021/games/fire-fiddler-1","","Cookies and Cream","","Get back to playing Hollow Knight ","","",""],["7","6:31 PM","😻","Catnip Fever","https://www.youtube.com/watch?v=OFr8byHN-1w","https://globalgamejam.org/2021/games/catnip-fever-7","","any ben n jerry's","","","","",""],["8","6:34 PM","🍎","Found a Friend","https://www.youtube.com/watch?v=i4AgDL49i3Y","https://globalgamejam.org/2021/games/found-friend-0","","Cherry garcia?","","","","",""],["9","6:37 PM","🐟","Lost and Fishing","https://youtu.be/2eprtj_NYa4","https://globalgamejam.org/2021/games/lost-and-fishing-4","","🐟","🐟","🐟","","",""],["10","6:40 PM","🧟🏻‍♂️","Zombie Key","https://youtu.be/t0f1K7bXnko (includes narration; recommend 720p+ or will be too blurry to see characters)","https://globalgamejam.org/2021/games/zombie-key-7","","dairy free lol","","To seek the holy grail","","",""],["11","6:43 PM","🔑🔑","WHERE'S MY KEYS?!?!","https://youtu.be/pfZAmkshOXo","https://globalgamejam.org/2021/games/wheres-my-keys-2","","Sea Salt","","Find the keys, at all costs!","","","Team Bouldy"],["12","6:46 PM","🐕","GOLD RETRIEVER","https://www.youtube.com/watch?v=QbUtKPWhsYw","https://globalgamejam.org/2021/games/gold-retriever-6","","RockyRoad","","EAT 15 Green Slimes","","",""],["13","6:49 PM","⚔️","Weapon of Choice ","https://www.youtube.com/watch?v=6pynWX8fPZs","https://globalgamejam.org/2021/games/weapon-choice-5","","wasuuuuuuup?","","So far this is no choice -- but we have LAVA","","",""],["14","6:52 PM","🌼","Lost Flowers","https://youtu.be/8f3VIKEf6-0","https://globalgamejam.org/2021/games/blastin-7","","Mint Moose Tracks","","Collect the plants!","","",""],["15","6:55 PM","💦","Where's the drip?","https://www.youtube.com/watch?v=WqZY2hrHF1w&feature=youtu.be","https://globalgamejam.org/2021/games/wheres-drip-0","","🍦","","To find the drip 💦","","",""],["16","6:58 PM","🐰","Bunny Boomers","(75) Bunny Boomers (Gameplay Footage) - YouTube","Bunny Boomers | Global Game Jam Online","","Chocolate","","To seek the Holy Grail!","","",""],["17","7:01 PM","🐔","Farm Alarm!","https://youtu.be/YaiTHEp_jNA","https://globalgamejam.org/2021/games/farm-alarm-4","","Americone Dream","","Find all the animals that are lost!","","",""],["18","7:04 PM","✈️","Operation Tomagatchi","https://www.youtube.com/watch?v=6w0-qVjd9BA&feature=youtu.be","https://globalgamejam.org/2021/games/operation-tamagotchi-8","","","","Survive day 2!","","",""],["19","7:07","👥","Peer to Peer","https://youtu.be/CiCv7howUZc ","https://globalgamejam.org/2021/games/peer-peer-5","","Moose Tracks","","Find your friend and escape!","","",""],["20","710","📞","First Unheard Message","https://www.youtube.com/watch?v=1M9aqjvtX34","https://globalgamejam.org/2021/games/first-unheard-message-2","","Mango","","😩","","",""],["21","713","⁉️","Was it worth it?","https://youtu.be/IjpRRXrmczM","https://globalgamejam.org/2021/games/was-it-even-worth-it-3","","Ice Cream","","Anxiety","","",""],["22","716","🐉","Surfing Dino","","https://globalgamejam.org/2021/games/dino-plunder-lost-and-found-treasure-2","","","","Make more zergs","","","jacob?"],["23","719","🌛","Eternal Equinox","https://youtu.be/wl-8KMCUnts","https://globalgamejam.org/2021/games/eternal-equinox-5","","","","Restore Balance To The Cosmos!","","",""],["24","7:21 PM","🚀","Dark Space","https://youtu.be/Ai1kVO57ne0","https://globalgamejam.org/2021/games/dark-space-1","","Astronaut","","To figure out what's happening on this ship...","","",""],["25","724","📆","Lost Tomorrow","https://youtu.be/RW1OTtklcuo","https://globalgamejam.org/2021/games/lost-tomorrow-9","","Rocky Road","","To seek the Holy Grail","","",""],["26","727","👸","sword of life","https://youtu.be/dNsKIPjMjhI","https://globalgamejam.org/2021/games/sword-life-2","","Cookies and Cream","","Come out with pride","","",""],["27","730","🚀💾","Star Rescue","https://www.youtube.com/watch?v=PhTaS2q-hfo","https://globalgamejam.org/2021/games/star-rescue-3","","Vanilla","","","","",""],["28","733","🔭","Tale Of Two Portals","https://www.youtube.com/watch?v=xwM7fpL89es","https://globalgamejam.org/2021/games/tale-two-portals-6","","","","Oculus","","",""],["29","736","🌈","Totally Gay Awesome Rescue Game","e","https://globalgamejam.org/2021/games/totally-gay-awesome-rescue-game-0","G","Chocolate Chip","","Happiness and warmth~","","","Girl Power"],["30","739","👻","The In-Between","https://youtu.be/G1zkjC4tAXg","https://globalgamejam.org/2021/games/between-1","","Double Chocolate Fudge Brownie","","To find the pieces that make you who you are.","","","OddBoss"],["31","742","👾","OoboloO","https://www.youtube.com/watch?v=qNUtp4FSwaY&ab_channel=LeviLindsey","https://globalgamejam.org/2021/games/ooboloo-2","","","","","","",""],["32","745","🐳","The Whale's Song","https://youtu.be/zsI2mAtTQck","https://globalgamejam.org/2021/games/whales-song-2","","","","","","",""],["33","748","👁️","Clairvoyance","https://youtu.be/M7l50FHmwDw","https://globalgamejam.org/2021/games/clairvoyance-8","","Chocolate chip cookie dough","","I seek the holy grail","","",""],["34","752","📿","The Lost Necklace","https://youtu.be/pRgOnCsv5E4","https://globalgamejam.org/2021/games/thelostnecklace-9","","Vanilla","","Get to level 30 in PixArk","","",""],["35","755","💤","Somnolence","https://youtu.be/aSpLzS34Pa4","https://globalgamejam.org/2021/games/somnolence-6","","Cookie Dough","","Just tryin to get a little more sleep","","",""],["36","758","🤖","L&F Droid","https://www.youtube.com/watch?v=9zveTiLE8nY","https://globalgamejam.org/2021/games/lf-droid-0","","","","Get some sleep after all of this","","",""],["37","801","🤖😼","Xip and Xander","https://www.youtube.com/watch?v=U2OWgsFXD8E&feature=youtu.be&ab_channel=CaitlinBurt","https://globalgamejam.org/2021/games/xip-and-xander-5","","","","","","",""],["39","8:07 PM","🌊","Treacherous Waters","https://youtu.be/d9QHs2Tb6d8","https://globalgamejam.org/2021/games/treacherous-waters-6","","Mint Chocolate Ship","","Grow your ship, find other players, bully them ","","",""],["40","810","🏰","TwitchTD","https://www.youtube.com/watch?v=6hGmx-NJON8","https://globalgamejam.org/2021/games/twitchtd-4","","Spookies and Cream","","Kill all weebs","","",""],["41","813","🩳","Gym Shorts Grave Robber","https://youtu.be/UoFHV-E-Cic","https://globalgamejam.org/2021/games/gym-shorts-grave-robber-3","","Moosetracks","","Play as a Grave Robber who is on the Hunt for Gym Shorts that give Magical Bonus and also the coins in the graves. Watch out for the Ghosts as you disturb Graves. Leave the graveyard alive to claim your loot or perish.","","",""],["42","816","🦉🦉🦉","Lost Puppy Wanted","https://youtu.be/OWeO8AjxDj4","https://globalgamejam.org/2021/games/lost-puppy-wanted-9","","Cookies n Cream","","Find a lost puppy, make a granny happy today","","",""],["43","819","🏝️","Message in a Bottle","https://www.youtube.com/watch?v=lGIZWDnu4F8&feature=youtu.be","https://globalgamejam.org/2021/games/message-bottle-5","","Vanilla","","figuring it out as i go along","","","Jose"],["44","821","🍆","Lust and Found","https://www.youtube.com/watch?v=zUFpaCS_eLg","https://globalgamejam.org/2021/games/lust-and-found-7","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","Defeat 5 Green Slimes","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],["AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","AS OF 8PM PST, THIS SPREADSHEET IS NOW CLOSED","","","","","","",""],[""]]
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fetchGoogleSheet", function() { return fetchGoogleSheet; });
+/* harmony import */ var urrl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9);
+/* harmony import */ var urrl__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(urrl__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var fetchquest__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(10);
+/* harmony import */ var fetchquest__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fetchquest__WEBPACK_IMPORTED_MODULE_1__);
+
+ // Read more at: https://api.fureweb.com/#/spreadsheets/spreadsheetId
+
+var FUREWEB_GOOGLE_SHEET_URL = new urrl__WEBPACK_IMPORTED_MODULE_0___default.a("https://api.fureweb.com/spreadsheets/{googlesheetId}");
+function fetchGoogleSheet(googlesheetId) {
+  console.log(googlesheetId);
+  return fetchquest__WEBPACK_IMPORTED_MODULE_1___default()({
+    "method": "GET",
+    "url": FUREWEB_GOOGLE_SHEET_URL({
+      "googlesheetId": googlesheetId
+    })
+  }).then(function (response) {
+    return response.data;
+  });
+}
 
 /***/ }),
 /* 9 */
+/***/ (function(module, exports) {
+
+// Urrl
+// @description Builds a URL from a URI resource path.
+// @accepts [string] a fully qualified path, with `{...}` as parameters
+// @returns [function] a curried function, that injects parameters over the `{...}`
+
+// @example
+// const POKEMON_URRL = new Urrl("http://pokeapi.co/api/v2/pokemon/{name}")
+// let url = POKEMON_URRL({"name": "bulbasaur"})
+// window.fetch(url)
+
+module.exports = function Urrl(url) {
+    return function(parameters) {
+        for(var key in parameters) {
+            url = url.replace("{" + key + "}", parameters[key])
+        }
+        return url
+    }
+}
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var api = __webpack_require__(10);
-            var content = __webpack_require__(11);
+const fetch = __webpack_require__(11)
+
+module.exports = function FetchQuest(request) {
+    if(request.body !== undefined) {
+        request.body = JSON.stringify(request.body)
+        request.headers = request.headers || {}
+        request.headers["Content-Type"] = "application/json"
+    }
+    return fetch(request.url, request).then((response) => {
+        return response.clone().json().catch((error) => {
+            return response.text()
+        }).then((value) => {
+            if(response.status.toString().charAt(0) === "4"
+            || response.status.toString().charAt(0) === "5") {
+                throw value
+            } else {
+                return value
+            }
+        })
+    })
+}
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+var global = typeof self !== 'undefined' ? self : this;
+var __self__ = (function () {
+function F() {
+this.fetch = false;
+this.DOMException = global.DOMException
+}
+F.prototype = global;
+return new F();
+})();
+(function(self) {
+
+var irrelevant = (function (exports) {
+
+  var support = {
+    searchParams: 'URLSearchParams' in self,
+    iterable: 'Symbol' in self && 'iterator' in Symbol,
+    blob:
+      'FileReader' in self &&
+      'Blob' in self &&
+      (function() {
+        try {
+          new Blob();
+          return true
+        } catch (e) {
+          return false
+        }
+      })(),
+    formData: 'FormData' in self,
+    arrayBuffer: 'ArrayBuffer' in self
+  };
+
+  function isDataView(obj) {
+    return obj && DataView.prototype.isPrototypeOf(obj)
+  }
+
+  if (support.arrayBuffer) {
+    var viewClasses = [
+      '[object Int8Array]',
+      '[object Uint8Array]',
+      '[object Uint8ClampedArray]',
+      '[object Int16Array]',
+      '[object Uint16Array]',
+      '[object Int32Array]',
+      '[object Uint32Array]',
+      '[object Float32Array]',
+      '[object Float64Array]'
+    ];
+
+    var isArrayBufferView =
+      ArrayBuffer.isView ||
+      function(obj) {
+        return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
+      };
+  }
+
+  function normalizeName(name) {
+    if (typeof name !== 'string') {
+      name = String(name);
+    }
+    if (/[^a-z0-9\-#$%&'*+.^_`|~]/i.test(name)) {
+      throw new TypeError('Invalid character in header field name')
+    }
+    return name.toLowerCase()
+  }
+
+  function normalizeValue(value) {
+    if (typeof value !== 'string') {
+      value = String(value);
+    }
+    return value
+  }
+
+  // Build a destructive iterator for the value list
+  function iteratorFor(items) {
+    var iterator = {
+      next: function() {
+        var value = items.shift();
+        return {done: value === undefined, value: value}
+      }
+    };
+
+    if (support.iterable) {
+      iterator[Symbol.iterator] = function() {
+        return iterator
+      };
+    }
+
+    return iterator
+  }
+
+  function Headers(headers) {
+    this.map = {};
+
+    if (headers instanceof Headers) {
+      headers.forEach(function(value, name) {
+        this.append(name, value);
+      }, this);
+    } else if (Array.isArray(headers)) {
+      headers.forEach(function(header) {
+        this.append(header[0], header[1]);
+      }, this);
+    } else if (headers) {
+      Object.getOwnPropertyNames(headers).forEach(function(name) {
+        this.append(name, headers[name]);
+      }, this);
+    }
+  }
+
+  Headers.prototype.append = function(name, value) {
+    name = normalizeName(name);
+    value = normalizeValue(value);
+    var oldValue = this.map[name];
+    this.map[name] = oldValue ? oldValue + ', ' + value : value;
+  };
+
+  Headers.prototype['delete'] = function(name) {
+    delete this.map[normalizeName(name)];
+  };
+
+  Headers.prototype.get = function(name) {
+    name = normalizeName(name);
+    return this.has(name) ? this.map[name] : null
+  };
+
+  Headers.prototype.has = function(name) {
+    return this.map.hasOwnProperty(normalizeName(name))
+  };
+
+  Headers.prototype.set = function(name, value) {
+    this.map[normalizeName(name)] = normalizeValue(value);
+  };
+
+  Headers.prototype.forEach = function(callback, thisArg) {
+    for (var name in this.map) {
+      if (this.map.hasOwnProperty(name)) {
+        callback.call(thisArg, this.map[name], name, this);
+      }
+    }
+  };
+
+  Headers.prototype.keys = function() {
+    var items = [];
+    this.forEach(function(value, name) {
+      items.push(name);
+    });
+    return iteratorFor(items)
+  };
+
+  Headers.prototype.values = function() {
+    var items = [];
+    this.forEach(function(value) {
+      items.push(value);
+    });
+    return iteratorFor(items)
+  };
+
+  Headers.prototype.entries = function() {
+    var items = [];
+    this.forEach(function(value, name) {
+      items.push([name, value]);
+    });
+    return iteratorFor(items)
+  };
+
+  if (support.iterable) {
+    Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
+  }
+
+  function consumed(body) {
+    if (body.bodyUsed) {
+      return Promise.reject(new TypeError('Already read'))
+    }
+    body.bodyUsed = true;
+  }
+
+  function fileReaderReady(reader) {
+    return new Promise(function(resolve, reject) {
+      reader.onload = function() {
+        resolve(reader.result);
+      };
+      reader.onerror = function() {
+        reject(reader.error);
+      };
+    })
+  }
+
+  function readBlobAsArrayBuffer(blob) {
+    var reader = new FileReader();
+    var promise = fileReaderReady(reader);
+    reader.readAsArrayBuffer(blob);
+    return promise
+  }
+
+  function readBlobAsText(blob) {
+    var reader = new FileReader();
+    var promise = fileReaderReady(reader);
+    reader.readAsText(blob);
+    return promise
+  }
+
+  function readArrayBufferAsText(buf) {
+    var view = new Uint8Array(buf);
+    var chars = new Array(view.length);
+
+    for (var i = 0; i < view.length; i++) {
+      chars[i] = String.fromCharCode(view[i]);
+    }
+    return chars.join('')
+  }
+
+  function bufferClone(buf) {
+    if (buf.slice) {
+      return buf.slice(0)
+    } else {
+      var view = new Uint8Array(buf.byteLength);
+      view.set(new Uint8Array(buf));
+      return view.buffer
+    }
+  }
+
+  function Body() {
+    this.bodyUsed = false;
+
+    this._initBody = function(body) {
+      this._bodyInit = body;
+      if (!body) {
+        this._bodyText = '';
+      } else if (typeof body === 'string') {
+        this._bodyText = body;
+      } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+        this._bodyBlob = body;
+      } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+        this._bodyFormData = body;
+      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+        this._bodyText = body.toString();
+      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+        this._bodyArrayBuffer = bufferClone(body.buffer);
+        // IE 10-11 can't handle a DataView body.
+        this._bodyInit = new Blob([this._bodyArrayBuffer]);
+      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+        this._bodyArrayBuffer = bufferClone(body);
+      } else {
+        this._bodyText = body = Object.prototype.toString.call(body);
+      }
+
+      if (!this.headers.get('content-type')) {
+        if (typeof body === 'string') {
+          this.headers.set('content-type', 'text/plain;charset=UTF-8');
+        } else if (this._bodyBlob && this._bodyBlob.type) {
+          this.headers.set('content-type', this._bodyBlob.type);
+        } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+          this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+        }
+      }
+    };
+
+    if (support.blob) {
+      this.blob = function() {
+        var rejected = consumed(this);
+        if (rejected) {
+          return rejected
+        }
+
+        if (this._bodyBlob) {
+          return Promise.resolve(this._bodyBlob)
+        } else if (this._bodyArrayBuffer) {
+          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
+        } else if (this._bodyFormData) {
+          throw new Error('could not read FormData body as blob')
+        } else {
+          return Promise.resolve(new Blob([this._bodyText]))
+        }
+      };
+
+      this.arrayBuffer = function() {
+        if (this._bodyArrayBuffer) {
+          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
+        } else {
+          return this.blob().then(readBlobAsArrayBuffer)
+        }
+      };
+    }
+
+    this.text = function() {
+      var rejected = consumed(this);
+      if (rejected) {
+        return rejected
+      }
+
+      if (this._bodyBlob) {
+        return readBlobAsText(this._bodyBlob)
+      } else if (this._bodyArrayBuffer) {
+        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
+      } else if (this._bodyFormData) {
+        throw new Error('could not read FormData body as text')
+      } else {
+        return Promise.resolve(this._bodyText)
+      }
+    };
+
+    if (support.formData) {
+      this.formData = function() {
+        return this.text().then(decode)
+      };
+    }
+
+    this.json = function() {
+      return this.text().then(JSON.parse)
+    };
+
+    return this
+  }
+
+  // HTTP methods whose capitalization should be normalized
+  var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
+
+  function normalizeMethod(method) {
+    var upcased = method.toUpperCase();
+    return methods.indexOf(upcased) > -1 ? upcased : method
+  }
+
+  function Request(input, options) {
+    options = options || {};
+    var body = options.body;
+
+    if (input instanceof Request) {
+      if (input.bodyUsed) {
+        throw new TypeError('Already read')
+      }
+      this.url = input.url;
+      this.credentials = input.credentials;
+      if (!options.headers) {
+        this.headers = new Headers(input.headers);
+      }
+      this.method = input.method;
+      this.mode = input.mode;
+      this.signal = input.signal;
+      if (!body && input._bodyInit != null) {
+        body = input._bodyInit;
+        input.bodyUsed = true;
+      }
+    } else {
+      this.url = String(input);
+    }
+
+    this.credentials = options.credentials || this.credentials || 'same-origin';
+    if (options.headers || !this.headers) {
+      this.headers = new Headers(options.headers);
+    }
+    this.method = normalizeMethod(options.method || this.method || 'GET');
+    this.mode = options.mode || this.mode || null;
+    this.signal = options.signal || this.signal;
+    this.referrer = null;
+
+    if ((this.method === 'GET' || this.method === 'HEAD') && body) {
+      throw new TypeError('Body not allowed for GET or HEAD requests')
+    }
+    this._initBody(body);
+  }
+
+  Request.prototype.clone = function() {
+    return new Request(this, {body: this._bodyInit})
+  };
+
+  function decode(body) {
+    var form = new FormData();
+    body
+      .trim()
+      .split('&')
+      .forEach(function(bytes) {
+        if (bytes) {
+          var split = bytes.split('=');
+          var name = split.shift().replace(/\+/g, ' ');
+          var value = split.join('=').replace(/\+/g, ' ');
+          form.append(decodeURIComponent(name), decodeURIComponent(value));
+        }
+      });
+    return form
+  }
+
+  function parseHeaders(rawHeaders) {
+    var headers = new Headers();
+    // Replace instances of \r\n and \n followed by at least one space or horizontal tab with a space
+    // https://tools.ietf.org/html/rfc7230#section-3.2
+    var preProcessedHeaders = rawHeaders.replace(/\r?\n[\t ]+/g, ' ');
+    preProcessedHeaders.split(/\r?\n/).forEach(function(line) {
+      var parts = line.split(':');
+      var key = parts.shift().trim();
+      if (key) {
+        var value = parts.join(':').trim();
+        headers.append(key, value);
+      }
+    });
+    return headers
+  }
+
+  Body.call(Request.prototype);
+
+  function Response(bodyInit, options) {
+    if (!options) {
+      options = {};
+    }
+
+    this.type = 'default';
+    this.status = options.status === undefined ? 200 : options.status;
+    this.ok = this.status >= 200 && this.status < 300;
+    this.statusText = 'statusText' in options ? options.statusText : 'OK';
+    this.headers = new Headers(options.headers);
+    this.url = options.url || '';
+    this._initBody(bodyInit);
+  }
+
+  Body.call(Response.prototype);
+
+  Response.prototype.clone = function() {
+    return new Response(this._bodyInit, {
+      status: this.status,
+      statusText: this.statusText,
+      headers: new Headers(this.headers),
+      url: this.url
+    })
+  };
+
+  Response.error = function() {
+    var response = new Response(null, {status: 0, statusText: ''});
+    response.type = 'error';
+    return response
+  };
+
+  var redirectStatuses = [301, 302, 303, 307, 308];
+
+  Response.redirect = function(url, status) {
+    if (redirectStatuses.indexOf(status) === -1) {
+      throw new RangeError('Invalid status code')
+    }
+
+    return new Response(null, {status: status, headers: {location: url}})
+  };
+
+  exports.DOMException = self.DOMException;
+  try {
+    new exports.DOMException();
+  } catch (err) {
+    exports.DOMException = function(message, name) {
+      this.message = message;
+      this.name = name;
+      var error = Error(message);
+      this.stack = error.stack;
+    };
+    exports.DOMException.prototype = Object.create(Error.prototype);
+    exports.DOMException.prototype.constructor = exports.DOMException;
+  }
+
+  function fetch(input, init) {
+    return new Promise(function(resolve, reject) {
+      var request = new Request(input, init);
+
+      if (request.signal && request.signal.aborted) {
+        return reject(new exports.DOMException('Aborted', 'AbortError'))
+      }
+
+      var xhr = new XMLHttpRequest();
+
+      function abortXhr() {
+        xhr.abort();
+      }
+
+      xhr.onload = function() {
+        var options = {
+          status: xhr.status,
+          statusText: xhr.statusText,
+          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+        };
+        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL');
+        var body = 'response' in xhr ? xhr.response : xhr.responseText;
+        resolve(new Response(body, options));
+      };
+
+      xhr.onerror = function() {
+        reject(new TypeError('Network request failed'));
+      };
+
+      xhr.ontimeout = function() {
+        reject(new TypeError('Network request failed'));
+      };
+
+      xhr.onabort = function() {
+        reject(new exports.DOMException('Aborted', 'AbortError'));
+      };
+
+      xhr.open(request.method, request.url, true);
+
+      if (request.credentials === 'include') {
+        xhr.withCredentials = true;
+      } else if (request.credentials === 'omit') {
+        xhr.withCredentials = false;
+      }
+
+      if ('responseType' in xhr && support.blob) {
+        xhr.responseType = 'blob';
+      }
+
+      request.headers.forEach(function(value, name) {
+        xhr.setRequestHeader(name, value);
+      });
+
+      if (request.signal) {
+        request.signal.addEventListener('abort', abortXhr);
+
+        xhr.onreadystatechange = function() {
+          // DONE (success or failure)
+          if (xhr.readyState === 4) {
+            request.signal.removeEventListener('abort', abortXhr);
+          }
+        };
+      }
+
+      xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit);
+    })
+  }
+
+  fetch.polyfill = true;
+
+  if (!self.fetch) {
+    self.fetch = fetch;
+    self.Headers = Headers;
+    self.Request = Request;
+    self.Response = Response;
+  }
+
+  exports.Headers = Headers;
+  exports.Request = Request;
+  exports.Response = Response;
+  exports.fetch = fetch;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+  return exports;
+
+}({}));
+})(__self__);
+__self__.fetch.ponyfill = true;
+// Remove "polyfill" property added by whatwg-fetch
+delete __self__.fetch.polyfill;
+// Choose between native implementation (global) or custom implementation (__self__)
+// var ctx = global.fetch ? global : __self__;
+var ctx = __self__; // this line disable service worker support temporarily
+exports = ctx.fetch // To enable: import fetch from 'cross-fetch'
+exports.default = ctx.fetch // For TypeScript consumers without esModuleInterop.
+exports.fetch = ctx.fetch // To enable: import {fetch} from 'cross-fetch'
+exports.Headers = ctx.Headers
+exports.Request = ctx.Request
+exports.Response = ctx.Response
+module.exports = exports
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var api = __webpack_require__(13);
+            var content = __webpack_require__(14);
 
             content = content.__esModule ? content.default : content;
 
@@ -442,7 +1200,7 @@ var update = api(content, options);
 module.exports = content.locals || {};
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -717,20 +1475,20 @@ module.exports = function (list, options) {
 };
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(12);
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(15);
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.i, "* {\n  margin: 0px;\n  padding: 0px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n}\n.Mount {\n  top: 0em;\n  left: 0em;\n  right: 0em;\n  bottom: 0em;\n  position: absolute;\n  background-color: #111;\n}\n.Frame {\n  top: 0em;\n  left: 0em;\n  right: 0em;\n  bottom: 0em;\n  margin: auto;\n  position: fixed;\n  overflow: hidden;\n  color: #F4F8F0;\n  width: 16em;\n  height: 9em;\n  background-image: linear-gradient(135deg, #2F243A, #444054);\n}\n.TitleScreen {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n}\n.VideoScreen {\n  width: 100%;\n  height: 100%;\n  background-color: #000;\n}\n.VideoScreen iframe {\n  width: 16em;\n  height: 9em;\n}\n.EndScreen {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n  padding: 0.5em;\n}\n", ""]);
+exports.push([module.i, "* {\n  margin: 0px;\n  padding: 0px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n}\n.Mount {\n  top: 0em;\n  left: 0em;\n  right: 0em;\n  bottom: 0em;\n  position: absolute;\n  background-color: #111;\n}\n.Frame {\n  top: 0em;\n  left: 0em;\n  right: 0em;\n  bottom: 0em;\n  margin: auto;\n  position: fixed;\n  overflow: hidden;\n  color: #F4F8F0;\n  width: 16em;\n  height: 9em;\n  background-image: linear-gradient(135deg, #2F243A, #444054);\n}\n.WelcomeScreen {\n  top: 3em;\n  left: 0em;\n  right: 0em;\n  width: 8em;\n  margin: auto;\n  position: absolute;\n  color: #B8C5D6;\n}\n.WelcomeScreen .Blurb {\n  text-align: justify;\n  font-size: 0.33em;\n}\n.WelcomeScreen .Blurb a {\n  color: inherit;\n}\n.WelcomeScreen form {\n  font-size: 0.33em;\n  margin-top: 1em;\n  cursor: pointer;\n}\n.WelcomeScreen form input {\n  display: block;\n  width: 100%;\n  border: none;\n  font: inherit;\n  font-size: 1.33em;\n  padding: 0.2em;\n  box-sizing: border-box;\n  background-color: #EDF5FC;\n}\n.WelcomeScreen form label {\n  display: block;\n  opacity: 0.5;\n}\n.TitleScreen {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n}\n.VideoScreen {\n  width: 100%;\n  height: 100%;\n  background-color: #000;\n}\n.VideoScreen iframe {\n  width: 16em;\n  height: 9em;\n}\n.EndScreen {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n  padding: 0.5em;\n}\n@keyframes bad {\n  0% {\n    background-color: red;\n  }\n  100% {\n    background-color: #EDF5FC;\n  }\n}\n", ""]);
 // Exports
 module.exports = exports;
 
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
