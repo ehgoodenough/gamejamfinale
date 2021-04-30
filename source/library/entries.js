@@ -25,8 +25,8 @@ export function formatEntries(entries) {
     return entries
 }
 
-export function retrieveEntries(entries) {
-    return fetchGoogleSheet().then((entries) => {
+export function retrieveEntries(googlesheetId) {
+    return fetchGoogleSheet(googlesheetId).then((entries) => {
         return formatEntries(entries)
     })
 }

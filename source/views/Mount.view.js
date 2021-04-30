@@ -1,37 +1,47 @@
 import * as Preact from "preact"
 
 import {retrieveEntries} from "library/entries.js"
+import {parseGoogleSheetsId} from "library/parse.js"
 
 import "views/Mount.view.less"
 
-function getRoute(hash = window.location.hash) {
-    const hashes = hash.split("/")
-    return {
-        "googlesheetId": hashes[1],
-        "entryIndex": parseInt(hashes[2]) || 0,
-        "entrySlide": hashes[3] || "title"
-    }
-}
+const EXAMPLE_GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1s0Uu0F25bJKfvDyh175VsRdVZ9csWJDlBvCExxMBC-w/edit#gid=0"
 
 export default class Mount extends Preact.Component {
     componentDidMount() {
-        this.retrieveState({"previousState": this.state}).then((nextState) => {
+        this.retrieveState({
+            "hash": window.location.hash,
+            "previousState": this.state
+        }).then((nextState) => {
             this.setState(nextState)
             console.log(nextState)
         })
 
         window.addEventListener("hashchange", (event) => {
-            this.retrieveState({"previousState": this.state}).then((nextState) => {
+            this.retrieveState({
+                "hash": window.location.hash,
+                "previousState": this.state
+            }).then((nextState) => {
                 this.setState(nextState)
                 console.log(nextState)
             })
         }, false)
     }
-    retrieveState({previousState} = {}) {
+    retrieveState({hash, previousState} = {}) {
         const nextState = {}
-        nextState.route = getRoute(window.location.hash)
+
+        const hashes = hash.split("/")
+        nextState.route = {
+            "googlesheetId": hashes[1] || undefined,
+            "entryIndex": parseInt(hashes[2]) || 0,
+            "entrySlide": hashes[3] || "title"
+        }
 
         if(previousState == undefined) {
+            return Promise.resolve(nextState)
+        }
+
+        if(nextState.route.googlesheetId == undefined) {
             return Promise.resolve(nextState)
         }
 
@@ -42,7 +52,7 @@ export default class Mount extends Preact.Component {
             return Promise.resolve(nextState)
         }
 
-        return retrieveEntries().then((entries) => {
+        return retrieveEntries(nextState.route.googlesheetId).then((entries) => {
             nextState.entries = entries
             return nextState
         })
@@ -60,6 +70,19 @@ export default class Mount extends Preact.Component {
         if(this.state == undefined
         || this.state.route == undefined) {
             return undefined
+        }
+        if(this.state.route.googlesheetId == undefined) {
+            return (
+                <div class="WelcomeScreen">
+                    <div class="Blurb">
+                        Let's generate a set of slides for your game jam finale. All we need is a public <a href="http://sheets.google.com/" target="_blank">Google Sheet</a> with the <span class="Code">Game Name</span> and <span class="Code">Youtube Link</span>. <a href="https://github.com/ehgoodenough/gamejamfinale/wiki/How-to-Use" target="_blank">Read the step-by-step instructions here!</a>
+                    </div>
+                    <form onSubmit={this.onSubmit}>
+                        <label for="input">Google Sheets URL or ID</label>
+                        <input id="input" type="text" placeholder={EXAMPLE_GOOGLE_SHEET_URL}/>
+                    </form>
+                </div>
+            )
         }
         if(this.state.entries == undefined) {
             return undefined
@@ -94,15 +117,57 @@ export default class Mount extends Preact.Component {
             || this.state.route.googlesheetId == undefined) {
                 return undefined
             }
-            const route = this.state.route
-            if(route.entrySlide != "video") {
-                route.entrySlide = "video"
+
+            if(this.state.route.entrySlide != "video") {
+                window.location.hash = this.generateRouteHash({
+                    "googlesheetId": this.state.route.googlesheetId,
+                    "entryIndex": this.state.route.entryIndex,
+                    "entrySlide": "video",
+                })
             } else {
-                route.entryIndex += 1
-                route.entrySlide = "title"
+                window.location.hash = this.generateRouteHash({
+                    "googlesheetId": this.state.route.googlesheetId,
+                    "entryIndex": this.state.route.entryIndex + 1,
+                    "entrySlide": "title",
+                })
             }
-            window.location.hash = "#/" + route.googlesheetId + "/" + route.entryIndex + "/" + route.entrySlide
         }
+    }
+    get onSubmit() {
+        return (event) => {
+            event.preventDefault()
+
+            const googlesheetUrl = event.target[0].value || EXAMPLE_GOOGLE_SHEET_URL
+            const googlesheetId = parseGoogleSheetsId(googlesheetUrl)
+
+            if(googlesheetId == undefined) {
+                // event.target[0].value = ""
+                event.target[0].style.animationName = ""
+                window.setTimeout(() => {
+                    event.target[0].style.animationName = "bad"
+                    event.target[0].style.animationDuration = "1s"
+                })
+                return
+            }
+
+            window.location.hash = this.generateRouteHash({
+                "googlesheetId": googlesheetId
+            })
+        }
+    }
+    generateRouteHash(route) {
+        let hash = "#"
+
+        if(route.googlesheetId == undefined) return hash
+        hash += "/" + route.googlesheetId
+
+        if(route.entryIndex == undefined) return hash
+        hash += "/" + route.entryIndex
+
+        if(route.entrySlide == undefined) return hash
+        hash += "/" + route.entrySlide
+
+        return hash
     }
 }
 
