@@ -207,10 +207,14 @@ var n,l,u,i,t,r,o={},f=[],e=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|z
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Mount; });
 /* harmony import */ var preact__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var library_entries_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
-/* harmony import */ var library_parse_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(7);
-/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
-/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(views_Mount_view_less__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var afloop__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
+/* harmony import */ var afloop__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(afloop__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var keyb__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
+/* harmony import */ var keyb__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(keyb__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var library_entries_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(8);
+/* harmony import */ var library_parse_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(9);
+/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(14);
+/* harmony import */ var views_Mount_view_less__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(views_Mount_view_less__WEBPACK_IMPORTED_MODULE_5__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -232,6 +236,8 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+
 
 
 
@@ -273,6 +279,19 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
           console.log(nextState);
         });
       }, false);
+      afloop__WEBPACK_IMPORTED_MODULE_1___default()(function (delta) {
+        if (_this.state == undefined || _this.state.route == undefined || _this.state.route.googlesheetId == undefined) {
+          return undefined;
+        }
+
+        if (keyb__WEBPACK_IMPORTED_MODULE_2___default.a.wasJustPressed("<left>")) {
+          window.location.hash = _this.generateHash(_this.generatePreviousRoute(_this.state.route));
+        }
+
+        if (keyb__WEBPACK_IMPORTED_MODULE_2___default.a.wasJustPressed("<right>") || keyb__WEBPACK_IMPORTED_MODULE_2___default.a.wasJustPressed("<space>")) {
+          window.location.hash = _this.generateHash(_this.generateNextRoute(_this.state.route));
+        }
+      });
     }
   }, {
     key: "retrieveState",
@@ -302,7 +321,7 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
         return Promise.resolve(nextState);
       }
 
-      return Object(library_entries_js__WEBPACK_IMPORTED_MODULE_1__["retrieveEntries"])(nextState.route.googlesheetId).then(function (entries) {
+      return Object(library_entries_js__WEBPACK_IMPORTED_MODULE_3__["retrieveEntries"])(nextState.route.googlesheetId).then(function (entries) {
         nextState.entries = entries;
         return nextState;
       });
@@ -318,8 +337,42 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
       }, this.screen));
     }
   }, {
-    key: "generateRouteHash",
-    value: function generateRouteHash(route) {
+    key: "generatePreviousRoute",
+    value: function generatePreviousRoute(route) {
+      if (route.entrySlide == "video") {
+        return {
+          "googlesheetId": route.googlesheetId,
+          "entryIndex": route.entryIndex,
+          "entrySlide": "title"
+        };
+      } else {
+        return {
+          "googlesheetId": route.googlesheetId,
+          "entryIndex": route.entryIndex - 1,
+          "entrySlide": "video"
+        };
+      }
+    }
+  }, {
+    key: "generateNextRoute",
+    value: function generateNextRoute(route) {
+      if (route.entrySlide != "video") {
+        return {
+          "googlesheetId": route.googlesheetId,
+          "entryIndex": route.entryIndex,
+          "entrySlide": "video"
+        };
+      } else {
+        return {
+          "googlesheetId": route.googlesheetId,
+          "entryIndex": route.entryIndex + 1,
+          "entrySlide": "title"
+        };
+      }
+    }
+  }, {
+    key: "generateHash",
+    value: function generateHash(route) {
       var hash = "#";
       if (route.googlesheetId == undefined) return hash;
       hash += "/" + route.googlesheetId;
@@ -400,19 +453,7 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
           return undefined;
         }
 
-        if (_this2.state.route.entrySlide != "video") {
-          window.location.hash = _this2.generateRouteHash({
-            "googlesheetId": _this2.state.route.googlesheetId,
-            "entryIndex": _this2.state.route.entryIndex,
-            "entrySlide": "video"
-          });
-        } else {
-          window.location.hash = _this2.generateRouteHash({
-            "googlesheetId": _this2.state.route.googlesheetId,
-            "entryIndex": _this2.state.route.entryIndex + 1,
-            "entrySlide": "title"
-          });
-        }
+        window.location.hash = _this2.generateHash(_this2.generateNextRoute(_this2.state.route));
       };
     }
   }, {
@@ -423,7 +464,7 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
       return function (event) {
         event.preventDefault();
         var googlesheetUrl = event.target[0].value || EXAMPLE_GOOGLE_SHEET_URL;
-        var googlesheetId = Object(library_parse_js__WEBPACK_IMPORTED_MODULE_2__["parseGoogleSheetsId"])(googlesheetUrl);
+        var googlesheetId = Object(library_parse_js__WEBPACK_IMPORTED_MODULE_4__["parseGoogleSheetsId"])(googlesheetUrl);
 
         if (googlesheetId == undefined) {
           // event.target[0].value = ""
@@ -435,9 +476,10 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
           return;
         }
 
-        window.location.hash = _this3.generateRouteHash({
+        var route = {
           "googlesheetId": googlesheetId
-        });
+        };
+        window.location.hash = _this3.generateHash(route);
       };
     }
   }]);
@@ -472,14 +514,213 @@ var Youtube = /*#__PURE__*/function () {
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const vkey = __webpack_require__(7)
+
+const DEFAULT_DELTA = 1000 / 60
+
+const Keyb = {"data": {}}
+
+Keyb.isPressed = function(key) {
+    return this.data[key] != undefined
+        && this.data[key].state == "pressed"
+}
+
+Keyb.isUnpressed = function(key) {
+    return this.data[key] == undefined
+        || this.data[key].state == "unpressed"
+}
+
+Keyb.wasJustPressed = function(key, delta) {
+    return this.data[key] != undefined
+        && this.data[key].state == "pressed"
+        && window.performance.now() - this.data[key].time < (delta || DEFAULT_DELTA)
+}
+
+Keyb.wasJustUnpressed = function(key, delta) {
+    return this.data[key] != undefined
+        && this.data[key].state == "unpressed"
+        && window.performance.now() - this.data[key].time < (delta || DEFAULT_DELTA)
+}
+
+Keyb.setPressed = function(keycode) {
+    const key = vkey[keycode]
+    if(this.isPressed(key) == false) {
+        this.data[key] = {"time": window.performance.now(), "state": "pressed"}
+    }
+}
+
+Keyb.setNotPressed = function(keycode) {
+    const key = vkey[keycode]
+    this.data[key] = {"time": window.performance.now(), "state": "unpressed"}
+}
+
+Keyb.isDown = Keyb.isPressed
+Keyb.isJustDown = Keyb.wasJustPressed
+Keyb.isUp = Keyb.isNotPressed
+Keyb.isNotPressed = Keyb.isUnpressed
+
+document.addEventListener("keydown", (event) => Keyb.setPressed(event.keyCode))
+document.addEventListener("keyup", (event) => Keyb.setNotPressed(event.keyCode))
+
+module.exports = Keyb
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ua = typeof window !== 'undefined' ? window.navigator.userAgent : ''
+  , isOSX = /OS X/.test(ua)
+  , isOpera = /Opera/.test(ua)
+  , maybeFirefox = !/like Gecko/.test(ua) && !isOpera
+
+var i, output = module.exports = {
+  0:  isOSX ? '<menu>' : '<UNK>'
+, 1:  '<mouse 1>'
+, 2:  '<mouse 2>'
+, 3:  '<break>'
+, 4:  '<mouse 3>'
+, 5:  '<mouse 4>'
+, 6:  '<mouse 5>'
+, 8:  '<backspace>'
+, 9:  '<tab>'
+, 12: '<clear>'
+, 13: '<enter>'
+, 16: '<shift>'
+, 17: '<control>'
+, 18: '<alt>'
+, 19: '<pause>'
+, 20: '<caps-lock>'
+, 21: '<ime-hangul>'
+, 23: '<ime-junja>'
+, 24: '<ime-final>'
+, 25: '<ime-kanji>'
+, 27: '<escape>'
+, 28: '<ime-convert>'
+, 29: '<ime-nonconvert>'
+, 30: '<ime-accept>'
+, 31: '<ime-mode-change>'
+, 32: '<space>'
+, 33: '<page-up>'
+, 34: '<page-down>'
+, 35: '<end>'
+, 36: '<home>'
+, 37: '<left>'
+, 38: '<up>'
+, 39: '<right>'
+, 40: '<down>'
+, 41: '<select>'
+, 42: '<print>'
+, 43: '<execute>'
+, 44: '<snapshot>'
+, 45: '<insert>'
+, 46: '<delete>'
+, 47: '<help>'
+, 91: '<meta>'  // meta-left -- no one handles left and right properly, so we coerce into one.
+, 92: '<meta>'  // meta-right
+, 93: isOSX ? '<meta>' : '<menu>'      // chrome,opera,safari all report this for meta-right (osx mbp).
+, 95: '<sleep>'
+, 106: '<num-*>'
+, 107: '<num-+>'
+, 108: '<num-enter>'
+, 109: '<num-->'
+, 110: '<num-.>'
+, 111: '<num-/>'
+, 144: '<num-lock>'
+, 145: '<scroll-lock>'
+, 160: '<shift-left>'
+, 161: '<shift-right>'
+, 162: '<control-left>'
+, 163: '<control-right>'
+, 164: '<alt-left>'
+, 165: '<alt-right>'
+, 166: '<browser-back>'
+, 167: '<browser-forward>'
+, 168: '<browser-refresh>'
+, 169: '<browser-stop>'
+, 170: '<browser-search>'
+, 171: '<browser-favorites>'
+, 172: '<browser-home>'
+
+  // ff/osx reports '<volume-mute>' for '-'
+, 173: isOSX && maybeFirefox ? '-' : '<volume-mute>'
+, 174: '<volume-down>'
+, 175: '<volume-up>'
+, 176: '<next-track>'
+, 177: '<prev-track>'
+, 178: '<stop>'
+, 179: '<play-pause>'
+, 180: '<launch-mail>'
+, 181: '<launch-media-select>'
+, 182: '<launch-app 1>'
+, 183: '<launch-app 2>'
+, 186: ';'
+, 187: '='
+, 188: ','
+, 189: '-'
+, 190: '.'
+, 191: '/'
+, 192: '`'
+, 219: '['
+, 220: '\\'
+, 221: ']'
+, 222: "'"
+, 223: '<meta>'
+, 224: '<meta>'       // firefox reports meta here.
+, 226: '<alt-gr>'
+, 229: '<ime-process>'
+, 231: isOpera ? '`' : '<unicode>'
+, 246: '<attention>'
+, 247: '<crsel>'
+, 248: '<exsel>'
+, 249: '<erase-eof>'
+, 250: '<play>'
+, 251: '<zoom>'
+, 252: '<no-name>'
+, 253: '<pa-1>'
+, 254: '<clear>'
+}
+
+for(i = 58; i < 65; ++i) {
+  output[i] = String.fromCharCode(i)
+}
+
+// 0-9
+for(i = 48; i < 58; ++i) {
+  output[i] = (i - 48)+''
+}
+
+// A-Z
+for(i = 65; i < 91; ++i) {
+  output[i] = String.fromCharCode(i)
+}
+
+// num0-9
+for(i = 96; i < 106; ++i) {
+  output[i] = '<num-'+(i - 96)+'>'
+}
+
+// F1-F24
+for(i = 112; i < 136; ++i) {
+  output[i] = 'F'+(i-111)
+}
+
+
+/***/ }),
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatEntries", function() { return formatEntries; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "retrieveEntries", function() { return retrieveEntries; });
-/* harmony import */ var library_parse_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
-/* harmony import */ var library_fetch_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var library_parse_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9);
+/* harmony import */ var library_fetch_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(10);
 
  // Intakes an array of arrays parsed from a csv. The first row is the header.
 // Returns an array of json objects, each representing a game jam entry:
@@ -510,7 +751,7 @@ function retrieveEntries(googlesheetId) {
 }
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -538,15 +779,15 @@ function parseGoogleSheetsId(string) {
 }
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fetchGoogleSheet", function() { return fetchGoogleSheet; });
-/* harmony import */ var urrl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9);
+/* harmony import */ var urrl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(11);
 /* harmony import */ var urrl__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(urrl__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fetchquest__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(10);
+/* harmony import */ var fetchquest__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(12);
 /* harmony import */ var fetchquest__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fetchquest__WEBPACK_IMPORTED_MODULE_1__);
 
  // Read more at: https://api.fureweb.com/#/spreadsheets/spreadsheetId
@@ -565,7 +806,7 @@ function fetchGoogleSheet(googlesheetId) {
 }
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports) {
 
 // Urrl
@@ -589,10 +830,10 @@ module.exports = function Urrl(url) {
 
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const fetch = __webpack_require__(11)
+const fetch = __webpack_require__(13)
 
 module.exports = function FetchQuest(request) {
     if(request.body !== undefined) {
@@ -616,7 +857,7 @@ module.exports = function FetchQuest(request) {
 
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports) {
 
 var global = typeof self !== 'undefined' ? self : this;
@@ -1176,11 +1417,11 @@ module.exports = exports
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var api = __webpack_require__(13);
-            var content = __webpack_require__(14);
+var api = __webpack_require__(15);
+            var content = __webpack_require__(16);
 
             content = content.__esModule ? content.default : content;
 
@@ -1200,7 +1441,7 @@ var update = api(content, options);
 module.exports = content.locals || {};
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1475,11 +1716,11 @@ module.exports = function (list, options) {
 };
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(15);
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(17);
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
 exports.push([module.i, "* {\n  margin: 0px;\n  padding: 0px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n}\n.Mount {\n  top: 0em;\n  left: 0em;\n  right: 0em;\n  bottom: 0em;\n  position: absolute;\n  background-color: #111;\n}\n.Frame {\n  top: 0em;\n  left: 0em;\n  right: 0em;\n  bottom: 0em;\n  margin: auto;\n  position: fixed;\n  overflow: hidden;\n  color: #F4F8F0;\n  width: 16em;\n  height: 9em;\n  background-image: linear-gradient(135deg, #2F243A, #444054);\n}\n.WelcomeScreen {\n  top: 3em;\n  left: 0em;\n  right: 0em;\n  width: 8em;\n  margin: auto;\n  position: absolute;\n  color: #B8C5D6;\n}\n.WelcomeScreen .Blurb {\n  text-align: justify;\n  font-size: 0.33em;\n}\n.WelcomeScreen .Blurb a {\n  color: inherit;\n}\n.WelcomeScreen form {\n  font-size: 0.33em;\n  margin-top: 1em;\n  cursor: pointer;\n}\n.WelcomeScreen form input {\n  display: block;\n  width: 100%;\n  border: none;\n  font: inherit;\n  font-size: 1.33em;\n  padding: 0.2em;\n  box-sizing: border-box;\n  background-color: #EDF5FC;\n}\n.WelcomeScreen form label {\n  display: block;\n  opacity: 0.5;\n}\n.TitleScreen {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n}\n.VideoScreen {\n  width: 100%;\n  height: 100%;\n  background-color: #000;\n}\n.VideoScreen iframe {\n  width: 16em;\n  height: 9em;\n}\n.EndScreen {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n  padding: 0.5em;\n}\n@keyframes bad {\n  0% {\n    background-color: red;\n  }\n  100% {\n    background-color: #EDF5FC;\n  }\n}\n", ""]);
@@ -1488,7 +1729,7 @@ module.exports = exports;
 
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
