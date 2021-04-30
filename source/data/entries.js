@@ -14,6 +14,12 @@ export default new class Entries {
     static format(entries) {
         let headers = entries.shift()
 
+        headers = headers.map((header) => {
+            header = header.replace(/\s+/g, "")
+            header = header.toLowerCase()
+            return header
+        })
+
         entries = entries.map((entry) => {
             const entry2 = {}
             headers.forEach((header, index) => {
@@ -24,9 +30,9 @@ export default new class Entries {
         })
 
         entries.forEach((entry) => {
-            entry.title = entry["Game Name"]
-            entry.emoji = entry["Emoji"]
-            entry.youtube = parseYoutube(entry["Youtube Link"])
+            entry.title = entry["gamename"]
+            entry.emoji = entry["emoji"]
+            entry.youtube = parseYoutube(entry["youtubelink"])
         })
         return entries
     }
