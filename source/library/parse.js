@@ -1,4 +1,4 @@
-export function parseYoutube(string) {
+export function parseYoutubeId(string) {
     if(string == undefined) return undefined
     if(string == "") return undefined
     

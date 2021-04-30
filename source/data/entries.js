@@ -1,8 +1,8 @@
-import {parseYoutube} from "library/parse.js"
+import {parseYoutubeId} from "library/parse.js"
 
 export default new class Entries {
     constructor() {
-        this.entries = Entries.format(require("data/entries.csv"))
+        this.entries = Entries.formatCSV(require("data/entries.csv"))
     }
     // Intakes an array of arrays parsed from a csv. The first row is the header.
     // Returns an array of json objects, each representing a game jam entry:
@@ -11,7 +11,7 @@ export default new class Entries {
     //     "emoji": "🗡️",
     //     "youtube": "TGlgNDDWzgw", // the video id of a youtube video
     // }
-    static format(entries) {
+    static formatCSV(entries) {
         let headers = entries.shift()
 
         headers = headers.map((header) => {
@@ -32,7 +32,7 @@ export default new class Entries {
         entries.forEach((entry) => {
             entry.title = entry["gamename"]
             entry.emoji = entry["emoji"]
-            entry.youtube = parseYoutube(entry["youtubelink"])
+            entry.youtubeId = parseYoutubeId(entry["youtubelink"])
         })
         return entries
     }
