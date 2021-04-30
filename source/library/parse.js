@@ -1,8 +1,11 @@
 export function parseYoutube(string) {
     if(string == undefined) return undefined
+    if(string == "") return undefined
+    
+    const matches = string.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)
+    if(matches == undefined) return
 
-    const url = string.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)[0]
-
+    const url = matches[0]
     if(url == undefined) return
 
     const match = url.match(/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/)
