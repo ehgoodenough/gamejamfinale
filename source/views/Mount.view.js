@@ -1,4 +1,6 @@
 import * as Preact from "preact"
+import Afloop from "afloop"
+import Keyb from "keyb"
 
 import {retrieveEntries} from "library/entries.js"
 import {parseGoogleSheetsId} from "library/parse.js"
@@ -26,6 +28,22 @@ export default class Mount extends Preact.Component {
                 console.log(nextState)
             })
         }, false)
+
+        Afloop((delta) => {
+            if(this.state == undefined
+            || this.state.route == undefined
+            || this.state.route.googlesheetId == undefined) {
+                return undefined
+            }
+
+            if(Keyb.wasJustPressed("<left>")) {
+                window.location.hash = this.generateHash(this.generatePreviousRoute(this.state.route))
+            }
+            if(Keyb.wasJustPressed("<right>")
+            || Keyb.wasJustPressed("<space>")) {
+                window.location.hash = this.generateHash(this.generateNextRoute(this.state.route))
+            }
+        })
     }
     retrieveState({hash, previousState} = {}) {
         const nextState = {}
@@ -117,20 +135,7 @@ export default class Mount extends Preact.Component {
             || this.state.route.googlesheetId == undefined) {
                 return undefined
             }
-
-            if(this.state.route.entrySlide != "video") {
-                window.location.hash = this.generateRouteHash({
-                    "googlesheetId": this.state.route.googlesheetId,
-                    "entryIndex": this.state.route.entryIndex,
-                    "entrySlide": "video",
-                })
-            } else {
-                window.location.hash = this.generateRouteHash({
-                    "googlesheetId": this.state.route.googlesheetId,
-                    "entryIndex": this.state.route.entryIndex + 1,
-                    "entrySlide": "title",
-                })
-            }
+            window.location.hash = this.generateHash(this.generateNextRoute(this.state.route))
         }
     }
     get onSubmit() {
@@ -150,12 +155,41 @@ export default class Mount extends Preact.Component {
                 return
             }
 
-            window.location.hash = this.generateRouteHash({
-                "googlesheetId": googlesheetId
-            })
+            const route = {"googlesheetId": googlesheetId}
+            window.location.hash = this.generateHash(route)
         }
     }
-    generateRouteHash(route) {
+    generatePreviousRoute(route) {
+        if(route.entrySlide == "video") {
+            return {
+                "googlesheetId": route.googlesheetId,
+                "entryIndex": route.entryIndex,
+                "entrySlide": "title",
+            }
+        } else {
+            return {
+                "googlesheetId": route.googlesheetId,
+                "entryIndex": route.entryIndex - 1,
+                "entrySlide": "video",
+            }
+        }
+    }
+    generateNextRoute(route) {
+        if(route.entrySlide != "video") {
+            return {
+                "googlesheetId": route.googlesheetId,
+                "entryIndex": route.entryIndex,
+                "entrySlide": "video",
+            }
+        } else {
+            return {
+                "googlesheetId": route.googlesheetId,
+                "entryIndex": route.entryIndex + 1,
+                "entrySlide": "title",
+            }
+        }
+    }
+    generateHash(route) {
         let hash = "#"
 
         if(route.googlesheetId == undefined) return hash
