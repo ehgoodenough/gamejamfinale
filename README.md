@@ -1,6 +1,6 @@
 # Game Jam Finale #
 
-[Here's an example from Global Game Jam 2021!](https://ehgoodenough.github.io/gamejamfinale/#/11/title)
+[Here's an example from Global Game Jam 2021!](https://ehgoodenough.github.io/gamejamfinale/1s0Uu0F25bJKfvDyh175VsRdVZ9csWJDlBvCExxMBC-w)
 
 ![Slide from the Presentation](screenshot.png)
 
