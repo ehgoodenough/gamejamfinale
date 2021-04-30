@@ -1,6 +1,6 @@
 import * as Preact from "preact"
 
-import entries from "data/entries.js"
+import {retrieveEntries} from "library/entries.js"
 
 import "views/Mount.view.less"
 
@@ -14,10 +14,23 @@ function getRoute(hash = window.location.hash) {
 
 export default class Mount extends Preact.Component {
     componentDidMount() {
-        this.setState({"route": getRoute(window.location.hash)})
+        this.setState({
+            "route": getRoute(window.location.hash)
+        })
+
         window.addEventListener("hashchange", (event) => {
-            this.setState({"route": getRoute(window.location.hash)})
+            this.setState({
+                "route": getRoute(window.location.hash),
+                "entries": this.state.entries,
+            })
         }, false)
+
+        retrieveEntries().then((entries) => {
+            this.setState({
+                "route": this.state.route,
+                "entries": entries,
+            })
+        })
     }
     render() {
         return (
@@ -49,7 +62,10 @@ export default class Mount extends Preact.Component {
         || this.state.route == undefined) {
             return undefined
         }
-        if(entries.get(this.state.route.index) == undefined) {
+        if(this.state.entries == undefined) {
+            return undefined
+        }
+        if(this.state.entries[this.state.route.index] == undefined) {
             return (
                 <div class="EndScreen">
                     Thanks for jamming!!
@@ -59,15 +75,15 @@ export default class Mount extends Preact.Component {
         if(this.state.route.screen == "title") {
             return (
                 <div class="TitleScreen">
-                    <div class="Emoji">{entries.get(this.state.route.index).emoji || "😃"}</div>
-                    <div class="Title">{entries.get(this.state.route.index).title}</div>
+                    <div class="Emoji">{this.state.entries[this.state.route.index].emoji || "😃"}</div>
+                    <div class="Title">{this.state.entries[this.state.route.index].title}</div>
                 </div>
             )
         }
         if(this.state.route.screen == "video") {
             return (
                 <div class="VideoScreen">
-                    <Youtube youtube={entries.get(this.state.route.index).youtube}/>
+                    <Youtube youtubeId={this.state.entries[this.state.route.index].youtubeId}/>
                 </div>
             )
         }

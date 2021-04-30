@@ -18,8 +18,10 @@
     "lint": "eslint source"
   },
   "dependencies": {
+    "fetchquest": "^1.1.0",
     "frem": "^1.0.0",
     "preact": "^10.5.12",
+    "urrl": "^1.0.0",
     "yaafloop": "^1.2.0"
   },
   "devDependencies": {
