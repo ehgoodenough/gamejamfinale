@@ -1,28 +1,36 @@
-// Exports an array of json objects, each representing a game jam entry:
-// {
-//     "title": "Swordshard",
-//     "emoji": "🗡️",
-//     "youtube": "TGlgNDDWzgw", // the video id of a youtube video
-// }
-
 import {parseYoutube} from "library/parse.js"
 
-let entries = require("data/entries.csv")
-let headers = entries.shift()
+export default new class Entries {
+    constructor() {
+        this.entries = Entries.format(require("data/entries.csv"))
+    }
+    // Intakes an array of arrays parsed from a csv. The first row is the header.
+    // Returns an array of json objects, each representing a game jam entry:
+    // {
+    //     "title": "Swordshard",
+    //     "emoji": "🗡️",
+    //     "youtube": "TGlgNDDWzgw", // the video id of a youtube video
+    // }
+    static format(entries) {
+        let headers = entries.shift()
 
-entries = entries.map((entry) => {
-    const entry2 = {}
-    headers.forEach((header, index) => {
-        if(header == "") return
-        entry2[header] = entry[index]
-    })
-    return entry2
-})
+        entries = entries.map((entry) => {
+            const entry2 = {}
+            headers.forEach((header, index) => {
+                if(header == "") return
+                entry2[header] = entry[index]
+            })
+            return entry2
+        })
 
-entries.forEach((entry) => {
-    entry.title = entry["Game Name"]
-    entry.emoji = entry["Emoji"]
-    entry.youtube = parseYoutube(entry["Youtube Link"])
-})
-
-export default entries
+        entries.forEach((entry) => {
+            entry.title = entry["Game Name"]
+            entry.emoji = entry["Emoji"]
+            entry.youtube = parseYoutube(entry["Youtube Link"])
+        })
+        return entries
+    }
+    get(index) {
+        return this.entries[index]
+    }
+}

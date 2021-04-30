@@ -49,7 +49,7 @@ export default class Mount extends Preact.Component {
         || this.state.route == undefined) {
             return undefined
         }
-        if(entries[this.state.route.index] == undefined) {
+        if(entries.get(this.state.route.index) == undefined) {
             return (
                 <div class="EndScreen">
                     Thanks for jamming!!
@@ -59,15 +59,15 @@ export default class Mount extends Preact.Component {
         if(this.state.route.screen == "title") {
             return (
                 <div class="TitleScreen">
-                    <div class="Emoji">{entries[this.state.route.index].emoji || "😃"}</div>
-                    <div class="Title">{entries[this.state.route.index].title}</div>
+                    <div class="Emoji">{entries.get(this.state.route.index).emoji || "😃"}</div>
+                    <div class="Title">{entries.get(this.state.route.index).title}</div>
                 </div>
             )
         }
         if(this.state.route.screen == "video") {
             return (
                 <div class="VideoScreen">
-                    <Youtube youtube={entries[this.state.route.index].youtube}/>
+                    <Youtube youtube={entries.get(this.state.route.index).youtube}/>
                 </div>
             )
         }
