@@ -7,29 +7,44 @@ import "views/Mount.view.less"
 function getRoute(hash = window.location.hash) {
     const hashes = hash.split("/")
     return {
-        "index": parseInt(hashes[1]) || 0,
-        "screen": hashes[2] || "title"
+        "googlesheetId": hashes[1],
+        "entryIndex": parseInt(hashes[2]) || 0,
+        "entrySlide": hashes[3] || "title"
     }
 }
 
 export default class Mount extends Preact.Component {
     componentDidMount() {
-        this.setState({
-            "route": getRoute(window.location.hash)
+        this.retrieveState({"previousState": this.state}).then((nextState) => {
+            this.setState(nextState)
+            console.log(nextState)
         })
 
         window.addEventListener("hashchange", (event) => {
-            this.setState({
-                "route": getRoute(window.location.hash),
-                "entries": this.state.entries,
+            this.retrieveState({"previousState": this.state}).then((nextState) => {
+                this.setState(nextState)
+                console.log(nextState)
             })
         }, false)
+    }
+    retrieveState({previousState} = {}) {
+        const nextState = {}
+        nextState.route = getRoute(window.location.hash)
 
-        retrieveEntries().then((entries) => {
-            this.setState({
-                "route": this.state.route,
-                "entries": entries,
-            })
+        if(previousState == undefined) {
+            return Promise.resolve(nextState)
+        }
+
+        if(previousState.route != undefined
+        && previousState.route.googlesheetId != undefined
+        && previousState.route.googlesheetId == nextState.route.googlesheetId) {
+            nextState.entries = previousState.entries
+            return Promise.resolve(nextState)
+        }
+
+        return retrieveEntries().then((entries) => {
+            nextState.entries = entries
+            return nextState
         })
     }
     render() {
@@ -41,22 +56,6 @@ export default class Mount extends Preact.Component {
             </div>
         )
     }
-    get onClick() {
-        return (event) => {
-            if(this.state == undefined
-            || this.state.route == undefined) {
-                return undefined
-            }
-            const route = this.state.route
-            if(route.screen != "video") {
-                route.screen = "video"
-            } else {
-                route.index += 1
-                route.screen = "title"
-            }
-            window.location.hash = "#/" + route.index + "/" + route.screen
-        }
-    }
     get screen() {
         if(this.state == undefined
         || this.state.route == undefined) {
@@ -65,27 +64,44 @@ export default class Mount extends Preact.Component {
         if(this.state.entries == undefined) {
             return undefined
         }
-        if(this.state.entries[this.state.route.index] == undefined) {
+        if(this.state.entries[this.state.route.entryIndex] == undefined) {
             return (
                 <div class="EndScreen">
                     Thanks for jamming!!
                 </div>
             )
         }
-        if(this.state.route.screen == "title") {
+        if(this.state.route.entrySlide == "title") {
             return (
                 <div class="TitleScreen">
-                    <div class="Emoji">{this.state.entries[this.state.route.index].emoji || "😃"}</div>
-                    <div class="Title">{this.state.entries[this.state.route.index].title}</div>
+                    <div class="Emoji">{this.state.entries[this.state.route.entryIndex].emoji || "😃"}</div>
+                    <div class="Title">{this.state.entries[this.state.route.entryIndex].title}</div>
                 </div>
             )
         }
-        if(this.state.route.screen == "video") {
+        if(this.state.route.entrySlide == "video") {
             return (
                 <div class="VideoScreen">
-                    <Youtube youtubeId={this.state.entries[this.state.route.index].youtubeId}/>
+                    <Youtube youtubeId={this.state.entries[this.state.route.entryIndex].youtubeId}/>
                 </div>
             )
+        }
+    }
+    get onClick() {
+        return (event) => {
+            if(this.state == undefined
+            || this.state.route == undefined
+            || this.state.route.googlesheetId == undefined) {
+                return undefined
+            }
+            const route = this.state.route
+            if(route.entrySlide != "video") {
+                route.entrySlide = "video"
+            } else {
+                route.entryIndex += 1
+                route.entrySlide = "title"
+            }
+            window.location.hash = "#/" + route.googlesheetId + "/" + route.entryIndex + "/" + route.entrySlide
         }
     }
 }
