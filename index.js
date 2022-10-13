@@ -356,11 +356,17 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
   }, {
     key: "generateNextRoute",
     value: function generateNextRoute(route) {
-      if (route.entrySlide != "video") {
+      if (route.entrySlide == "title") {
         return {
           "googlesheetId": route.googlesheetId,
           "entryIndex": route.entryIndex,
           "entrySlide": "video"
+        };
+      } else if (route.entrySlide == "video") {
+        return {
+          "googlesheetId": route.googlesheetId,
+          "entryIndex": route.entryIndex,
+          "entrySlide": "retitle"
         };
       } else {
         return {
@@ -425,7 +431,7 @@ var Mount = /*#__PURE__*/function (_Preact$Component) {
         }, "Thanks for jamming!!");
       }
 
-      if (this.state.route.entrySlide == "title") {
+      if (this.state.route.entrySlide == "title" || this.state.route.entrySlide == "retitle") {
         return preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
           "class": "TitleScreen"
         }, preact__WEBPACK_IMPORTED_MODULE_0__["h"]("div", {
