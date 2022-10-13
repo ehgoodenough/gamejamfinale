@@ -112,7 +112,8 @@ export default class Mount extends Preact.Component {
                 </div>
             )
         }
-        if(this.state.route.entrySlide == "title") {
+        if(this.state.route.entrySlide == "title"
+        || this.state.route.entrySlide == "retitle") {
             return (
                 <div class="TitleScreen">
                     <div class="Emoji">{this.state.entries[this.state.route.entryIndex].emoji || "😃"}</div>
@@ -175,11 +176,17 @@ export default class Mount extends Preact.Component {
         }
     }
     generateNextRoute(route) {
-        if(route.entrySlide != "video") {
+        if(route.entrySlide == "title") {
             return {
                 "googlesheetId": route.googlesheetId,
                 "entryIndex": route.entryIndex,
                 "entrySlide": "video",
+            }
+        } else if(route.entrySlide == "video") {
+            return {
+                "googlesheetId": route.googlesheetId,
+                "entryIndex": route.entryIndex,
+                "entrySlide": "retitle",
             }
         } else {
             return {
